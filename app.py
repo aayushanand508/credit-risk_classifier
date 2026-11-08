@@ -12,8 +12,17 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import streamlit as st
+from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (classification_report, confusion_matrix,
                              roc_curve)
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from evaluation import METRIC_ORDER, compute_metrics
 
@@ -21,9 +30,9 @@ ROOT = Path(__file__).parent
 MODEL_DIR = ROOT / "model"
 TARGET = "credit_risk"
 MODEL_FILES = {
+    "Logistic Regression": "logistic_regression.joblib",
     "Decision Tree": "decision_tree.joblib",
     "KNN": "knn.joblib",
-    "Logistic Regression": "logistic_regression.joblib",
     "Naive Bayes": "naive_bayes.joblib",
     "Support Vector Machine": "support_vector_machine.joblib",
 }
@@ -32,14 +41,63 @@ CLASS_NAMES = ["Good risk (0)", "Bad risk (1)"]
 st.set_page_config(page_title="Credit Risk Classifier Lab", layout="wide")
 
 
+SEED = 7
+NUMERIC = ["duration_months", "credit_amount", "installment_rate", "residence_since",
+           "age", "existing_credits", "num_dependents"]
+
+
+def _find_file(name):
+    for p in (ROOT / name, ROOT / "data" / name, ROOT / "model" / name):
+        if p.exists():
+            return p
+    return None
+
+
+@st.cache_resource(show_spinner="Saved model files not found - training models from the dataset...")
+def train_fallback():
+    """Rebuild the five models with the same split, seed and tuned settings as train_models.py."""
+    path = _find_file("german_credit_full.csv")
+    if path is None:
+        raise FileNotFoundError(
+            "Neither model/*.joblib nor german_credit_full.csv was found in the repository.")
+    df = pd.read_csv(path)
+    X, y = df.drop(columns=[TARGET]), df[TARGET]
+    categorical = [c for c in X.columns if c not in NUMERIC]
+    X_train, _, y_train, _ = train_test_split(
+        X, y, test_size=0.2, stratify=y, random_state=SEED)
+
+    estimators = {
+        "Logistic Regression": LogisticRegression(C=0.1, max_iter=2000, random_state=SEED),
+        "Decision Tree": DecisionTreeClassifier(max_depth=5, min_samples_leaf=10, random_state=SEED),
+        "KNN": KNeighborsClassifier(n_neighbors=25, weights="distance"),
+        "Naive Bayes": GaussianNB(var_smoothing=0.1),
+        "Support Vector Machine": SVC(C=10, gamma=0.01, probability=True, random_state=SEED),
+    }
+    models = {}
+    for name, est in estimators.items():
+        prep = ColumnTransformer([
+            ("num", StandardScaler(), NUMERIC),
+            ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), categorical),
+        ])
+        models[name] = Pipeline([("prep", prep), ("clf", est)]).fit(X_train, y_train)
+    return models
+
+
 @st.cache_resource
 def load_model(name):
-    return joblib.load(MODEL_DIR / MODEL_FILES[name])
+    """Load the saved pipeline; if the file is missing or unreadable, use the rebuilt one."""
+    path = MODEL_DIR / MODEL_FILES[name]
+    if path.exists():
+        try:
+            return joblib.load(path)
+        except Exception:
+            pass
+    return train_fallback()[name]
 
 
 @st.cache_data
 def load_default_test():
-    return pd.read_csv(ROOT / "test_data.csv")
+    return pd.read_csv(_find_file("test_data.csv"))
 
 
 def required_features():
