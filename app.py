@@ -21,9 +21,9 @@ ROOT = Path(__file__).parent
 MODEL_DIR = ROOT / "model"
 TARGET = "credit_risk"
 MODEL_FILES = {
-    "Logistic Regression": "logistic_regression.joblib",
     "Decision Tree": "decision_tree.joblib",
     "KNN": "knn.joblib",
+    "Logistic Regression": "logistic_regression.joblib",
     "Naive Bayes": "naive_bayes.joblib",
     "Support Vector Machine": "support_vector_machine.joblib",
 }
