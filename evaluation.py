@@ -2,6 +2,7 @@
 from sklearn.metrics import (accuracy_score, f1_score, matthews_corrcoef,
                              precision_score, recall_score, roc_auc_score)
 
+
 METRIC_ORDER = ["Accuracy", "AUC", "Precision", "Recall", "F1", "MCC"]
 
 
