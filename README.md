@@ -24,7 +24,7 @@ Preprocessing (inside each saved scikit-learn Pipeline, so raw CSV rows can be s
 
 Train/test split: 80/20 stratified split with random_state 7. 800 rows are used for training and hyper-parameter tuning (5-fold cross validation, scoring by ROC AUC); the remaining 200 rows (60 bad risk, 140 good risk) are saved as `test_data.csv` and used for every metric reported below.
 
-## c. GitHub Repository Link [1 mark]
+## c. GitHub Repository Link 
 
 https://github.com/<YOUR-GITHUB-USERNAME>/credit-risk-classifier
 
@@ -52,7 +52,7 @@ credit-risk-classifier/
     `-- best_params.json
 ```
 
-## d. Models Used [5 marks]
+## d. Models Used 
 
 All five models were trained on the same training split. The positive class for Precision, Recall, F1 and MCC is bad credit risk (class 1). AUC is computed from predicted probabilities.
 
@@ -71,7 +71,7 @@ Hyper-parameters selected by grid search (5-fold CV on the training split):
 - Naive Bayes (Gaussian): var_smoothing = 0.1
 - Support Vector Machine (RBF kernel): C = 10, gamma = 0.01
 
-### Observations on model performance [3 marks]
+### Observations on model performance 
 
 | ML Model Name | Observation about model performance |
 |---|---|
