@@ -6,7 +6,7 @@ Classification of loan applicants as good or bad credit risks using five machine
 
 Lenders must decide whether an applicant is likely to repay a loan. A wrong approval of a risky applicant causes a financial loss, while a wrong rejection of a good applicant loses business. The goal of this project is to build and compare five classification models that predict whether an applicant is a bad credit risk (class 1) or a good credit risk (class 0) from the applicant's financial and personal attributes, and to deploy the trained models in an interactive web application for evaluation on unseen data.
 
-## b. Dataset Description [1 mark]
+## b. Dataset Description 
 
 - Name: Statlog (German Credit Data)
 - Source: UCI Machine Learning Repository (Prof. Hans Hofmann, University of Hamburg)
